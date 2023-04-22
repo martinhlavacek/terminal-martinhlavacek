@@ -2,7 +2,7 @@ import { getProjects } from '../../api';
 
 export const myrepo = async (args: string[]): Promise<string> => {
   const projects = await getProjects();
-  console.log(projects)
+
   return projects
     .filter((repo) => !repo.fork)
     .map(

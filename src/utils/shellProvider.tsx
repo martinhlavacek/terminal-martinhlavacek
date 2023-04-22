@@ -88,7 +88,6 @@ export const ShellProvider: React.FC<ShellProviderProps> = ({ children }) => {
         } else {
           try {
             const output = await bin[cmd](args);
-            console.log(output);
             setHistory(output);
           } catch (error) {
             setHistory(error.message);

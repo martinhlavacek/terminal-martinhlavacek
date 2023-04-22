@@ -63,7 +63,7 @@ const subtitle = `
 --
 Tento stránka je open-source projekt 🎉 podívat se může do mého repository po zadnání příkazu 'terminalrepo'.
 --
-`
+`;
 const backupSubtitle = `
 New 🎉: 2Try out the new 'theme' command. See all available themes <a href="https://github.com/m4tt72/terminal/tree/master/docs/themes">in the docs</a>.
 New 🎉: New command 'neofetch', for you linux.
