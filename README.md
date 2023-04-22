@@ -1,3 +1,5 @@
+Note: this is my clone repository base on M4TT72 - Thanks!!
+
 # [M4TT72 | Terminal](https://term.m4tt72.com)
 
 A terminal style website
