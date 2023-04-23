@@ -5,6 +5,7 @@ import { Layout } from '../components/layout';
 import '../styles/global.css';
 import { ShellProvider } from '../utils/shellProvider';
 import { ThemeProvider } from '../utils/themeProvider';
+import { Analytics } from '@vercel/analytics/react';
 
 const App = ({ Component, pageProps }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -30,6 +31,7 @@ const App = ({ Component, pageProps }) => {
 
         <Layout onClick={onClickAnywhere}>
           <Component {...pageProps} inputRef={inputRef} />
+          <Analytics />
         </Layout>
       </ShellProvider>
     </ThemeProvider>
