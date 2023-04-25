@@ -2,7 +2,7 @@ import packageJson from '../../../package.json';
 import * as bin from './index';
 
 export const help = async (args: string[]): Promise<string> => {
-  const commands = Object.keys(bin).sort().join(', ');
+  const commands = ['clear', ...Object.keys(bin)].sort().join(', ');
 
   return `Prikazy:\n${commands}\n\n[tab]\t dokonceni prikazu.\n[ctrl+l] vymazani terminalu.\n[ctrl+c] ukonceni prikazu.`;
 };
