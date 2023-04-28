@@ -56,6 +56,9 @@ export const terminalrepo = async (args?: string[]): Promise<string> => {
 const subtitle = `
 --
 Tento stránka je open-source projekt 🎉 podívat se může do mého repository po zadnání příkazu 'terminalrepo'.
+== Update ==
+feature:
+- pridanano prihlaseni do administratorske sekce
 --
 `;
 const backupSubtitle = `
