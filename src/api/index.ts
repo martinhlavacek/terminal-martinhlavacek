@@ -7,6 +7,10 @@ export interface IDomains {
   url: string;
 }
 
+export const getVersion = async () => {
+  const { data } = await axios.get('/api/version');
+  return data;
+};
 
 export const getProjects = async () => {
   const { data } = await axios.get(

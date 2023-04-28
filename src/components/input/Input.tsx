@@ -5,10 +5,13 @@ import { handleTabCompletion } from '../../utils/tabCompletion';
 import { useTheme } from '../../utils/themeProvider';
 import { Ps1 } from '../ps1';
 import va from '@vercel/analytics';
+import { Login } from '../../utils/bin/login';
 
-export const Input = ({ inputRef, containerRef }) => {
+
+export const Input = ({ inputRef, containerRef, userLogin }) => {
   const { theme } = useTheme();
   const [value, setValue] = useState('');
+  const [login, setLogin] = useState<Login>({})
   const {
     setCommand,
     history,
@@ -16,11 +19,28 @@ export const Input = ({ inputRef, containerRef }) => {
     setHistory,
     setLastCommandIndex,
     clearHistory,
+    removeLastHistory,
+    callLogin,
   } = useShell();
 
   useEffect(() => {
     containerRef.current.scrollTo(0, containerRef.current.scrollHeight);
   }, [history]);
+
+  const isLogin = () => {
+    const lastCommand = history[history.length - 1]
+    return lastCommand && lastCommand.command === 'login';
+  }
+
+  const isPassword = (login: Login) => {
+    if (isLogin()) {
+      return login.username && !login.password;
+    }
+  }
+
+  const isLogged = () => {
+    return userLogin.alias !== undefined;
+  }
 
   const onSubmit = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     const commands: string[] = history
@@ -29,36 +49,45 @@ export const Input = ({ inputRef, containerRef }) => {
 
     if (event.key === 'c' && event.ctrlKey) {
       event.preventDefault();
-
       setValue('');
+      setLogin({});
 
       setHistory('');
-
       setLastCommandIndex(0);
+      removeLastHistory();
     }
 
     if (event.key === 'l' && event.ctrlKey) {
       event.preventDefault();
-
+      setLogin({});
       clearHistory();
     }
 
     if (event.key === 'Tab') {
       event.preventDefault();
 
-      handleTabCompletion(value, setValue);
+      const isLogged = userLogin.alias !== undefined;
+      handleTabCompletion(value, setValue, isLogged);
     }
 
     if (event.key === 'Enter' || event.code === '13') {
       event.preventDefault();
-
-      setLastCommandIndex(0);
-
-      setCommand(value);
+      if (isLogin()) {
+        if (isPassword(login)) {
+          callLogin(login.username, value);
+          setValue('');
+          setLogin({});
+          return;
+        } else {
+          setLogin({ ...login, username: value });
+        }
+      } else {
+        setCommand(value);
+        va.track(value);
+      }
 
       setValue('');
 
-      va.track(value);
     }
 
     if (event.key === 'ArrowUp') {
@@ -98,18 +127,19 @@ export const Input = ({ inputRef, containerRef }) => {
   return (
     <div className="flex flex-row space-x-2">
       <label htmlFor="prompt" className="flex-shrink">
-        <Ps1 />
+        {!isLogin() && <Ps1 username={userLogin.alias} />}
+        {isLogin() && !isPassword(login) ? 'username: ' : ''}
+        {isPassword(login) ? 'password: ' : ''}
       </label>
-
       <input
         ref={inputRef}
         id="prompt"
-        type="text"
+        type={isPassword(login) ? 'password' : 'text'}
         className="focus:outline-none flex-grow"
         aria-label="prompt"
         style={{
           backgroundColor: theme.background,
-          color: commandExists(value) || value === '' ? theme.green : theme.red,
+          color: commandExists(value, userLogin.isLogged) || value === '' ? theme.green : theme.red,
         }}
         value={value}
         onChange={(event) => setValue(event.target.value)}

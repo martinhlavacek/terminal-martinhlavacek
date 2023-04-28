@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../utils/themeProvider';
 
-export const Ps1 = () => {
+interface Props {
+  username: string;
+}
+
+export const Ps1: React.FC<Props> = ({ username }) => {
   const [hostname, setHostname] = useState('');
   const { theme } = useTheme();
 
@@ -18,7 +22,7 @@ export const Ps1 = () => {
           color: theme.yellow,
         }}
       >
-        guest
+        {username === undefined ? 'guest' : username}
       </span>
       <span
         style={{

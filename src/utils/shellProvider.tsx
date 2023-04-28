@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
 import { History } from '../interfaces/history';
 import * as bin from './bin';
+import * as adminBin from './admin';
 import { useTheme } from './themeProvider';
-
+import { Login, login, loginUser, getLoggedUser } from './bin/login';
+import { logout } from './admin/logout'
 interface ShellContextType {
   history: History[];
+  userLogin: Login;
   command: string;
   lastCommandIndex: number;
 
@@ -13,6 +16,8 @@ interface ShellContextType {
   setLastCommandIndex: (index: number) => void;
   execute: (command: string) => Promise<void>;
   clearHistory: () => void;
+  removeLastHistory: () => void;
+  callLogin: (username: string, password: string) => void;
 }
 
 const ShellContext = React.createContext<ShellContextType>(null);
@@ -29,9 +34,16 @@ export const ShellProvider: React.FC<ShellProviderProps> = ({ children }) => {
   const [command, _setCommand] = React.useState<string>('');
   const [lastCommandIndex, _setLastCommandIndex] = React.useState<number>(0);
   const { theme, setTheme } = useTheme();
+  const [userLogin, setUserLogin] = React.useState<Login>({});
 
   useEffect(() => {
     setCommand('banner');
+    async function checkAuthentication() {
+      const user = await getLoggedUser();
+      setUserLogin(user);
+    }
+
+    checkAuthentication();
   }, []);
 
   useEffect(() => {
@@ -52,6 +64,11 @@ export const ShellProvider: React.FC<ShellProviderProps> = ({ children }) => {
     ]);
   };
 
+  const removeLastHistory = () => {
+    const newHistory = history.slice(0, history.length - 1);
+    _setHistory(newHistory);
+  };
+
   const setCommand = (command: string) => {
     _setCommand([Date.now(), command].join(' '));
 
@@ -61,13 +78,25 @@ export const ShellProvider: React.FC<ShellProviderProps> = ({ children }) => {
   const clearHistory = () => {
     _setHistory([]);
   };
+  const callLogin = async (username: string, password: string) => {
+    const userData = await loginUser(username, password);
+    if (userData.alias === null) {
 
+      setHistory('Login failed. Try again.');
+
+    } else {
+      setUserLogin(userData);
+      setCommand('clear');
+    }
+  }
   const setLastCommandIndex = (index: number) => {
     _setLastCommandIndex(index);
   };
 
   const execute = async () => {
     const [cmd, ...args] = command.split(' ').slice(1);
+
+    const isLogged = userLogin.isLogged;
 
     switch (cmd) {
       case 'theme':
@@ -82,12 +111,38 @@ export const ShellProvider: React.FC<ShellProviderProps> = ({ children }) => {
       case '':
         setHistory('');
         break;
+      case 'login':
+        const loginData = await login(args);
+        setHistory(loginData);
+        break;
+      case 'exit':
+        if (!isLogged) {
+          setHistory(`Command not found: ${cmd}. Try 'help' to get started.`);
+        } else {
+          await logout();
+          setUserLogin({});
+          setCommand('clear');
+        }
+        break;
       default: {
-        if (Object.keys(bin).indexOf(cmd) === -1) {
+        let commands = Object.keys(bin);
+        let adminCommands = Object.keys(adminBin);
+        if (isLogged) {
+          commands = commands.concat(adminCommands);
+
+        }
+
+        if (commands.indexOf(cmd) === -1) {
           setHistory(`Command not found: ${cmd}. Try 'help' to get started.`);
         } else {
           try {
-            const output = await bin[cmd](args);
+            let output = '';
+            const isAdminCommand = adminCommands.indexOf(cmd) !== -1;
+            if (isAdminCommand) {
+              output = await adminBin[cmd](args, isLogged);
+            } else {
+              output = await bin[cmd](args, isLogged);
+            }
             setHistory(output);
           } catch (error) {
             setHistory(error.message);
@@ -101,6 +156,7 @@ export const ShellProvider: React.FC<ShellProviderProps> = ({ children }) => {
     <ShellContext.Provider
       value={{
         history,
+        userLogin,
         command,
         lastCommandIndex,
         setHistory,
@@ -108,6 +164,8 @@ export const ShellProvider: React.FC<ShellProviderProps> = ({ children }) => {
         setLastCommandIndex,
         execute,
         clearHistory,
+        removeLastHistory,
+        callLogin,
       }}
     >
       {children}

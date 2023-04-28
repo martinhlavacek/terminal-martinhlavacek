@@ -1,4 +1,3 @@
-
 import { getDomain } from '../../api';
 
 const useCommand = `Pužití: domain [arg]
