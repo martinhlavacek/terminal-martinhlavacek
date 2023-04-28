@@ -1,8 +1,14 @@
 import packageJson from '../../../package.json';
 import * as bin from './index';
+import * as adminBin from '../admin/index';
+import { getVersion } from '../../api'
 
-export const help = async (args: string[]): Promise<string> => {
-  const commands = ['clear', ...Object.keys(bin)].sort().join(', ');
+export const help = async (args: string[], isAdmin: boolean = false): Promise<string> => {
+  let commands = ['clear', ...Object.keys(bin)].sort().join(', ');
+  if (isAdmin) {
+    commands = commands + ', ' + [...Object.keys(adminBin)].sort().join(', ');
+    commands = commands + ', ' + 'exit';
+  }
 
   return `Prikazy:\n${commands}\n\n[tab]\t dokonceni prikazu.\n[ctrl+l] vymazani terminalu.\n[ctrl+c] ukonceni prikazu.`;
 };
@@ -31,18 +37,6 @@ export const email = async (args: string[]): Promise<string> => {
   return 'Opening mailto:martin@martinhlavacek.cz...';
 };
 
-// export const vi = async (args: string[]): Promise<string> => {
-//   return `why use vi? try 'emacs'.`;
-// };
-
-// export const vim = async (args: string[]): Promise<string> => {
-//   return `why use vim? try 'emacs'.`;
-// };
-
-// export const emacs = async (args?: string[]): Promise<string> => {
-//   return `really? emacs? you should be using 'vim'`;
-// };
-
 // export const sudo = async (args?: string[]): Promise<string> => {
 //   setTimeout(function() {
 //     window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
@@ -70,7 +64,9 @@ New 🎉: New command 'neofetch', for you linux.
 
 `;
 
-export const banner = (args?: string[]): string => {
+export const banner = async (args?: string[]): Promise<string> => {
+  const data = await getVersion();
+
   return `
 
 ███╗░░░███╗░█████╗░██████╗░████████╗██╗███╗░░██╗  ██╗░░██╗██╗░░░░░░█████╗░██╗░░░██╗░█████╗░░█████╗░███████╗██╗░░██╗
@@ -78,7 +74,7 @@ export const banner = (args?: string[]): string => {
 ██╔████╔██║███████║██████╔╝░░░██║░░░██║██╔██╗██║  ███████║██║░░░░░███████║╚██╗░██╔╝███████║██║░░╚═╝█████╗░░█████═╝░
 ██║╚██╔╝██║██╔══██║██╔══██╗░░░██║░░░██║██║╚████║  ██╔══██║██║░░░░░██╔══██║░╚████╔╝░██╔══██║██║░░██╗██╔══╝░░██╔═██╗░
 ██║░╚═╝░██║██║░░██║██║░░██║░░░██║░░░██║██║░╚███║  ██║░░██║███████╗██║░░██║░░╚██╔╝░░██║░░██║╚█████╔╝███████╗██║░╚██╗
-╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝╚═╝░░╚══╝  ╚═╝░░╚═╝╚══════╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝░╚════╝░╚══════╝╚═╝░░╚═╝ v${packageJson.version}
+╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝╚═╝░░╚══╝  ╚═╝░░╚═╝╚══════╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝░╚════╝░╚══════╝╚═╝░░╚═╝ ${data.version}
 
 Napiš 'help' k zobrazení dostupných příkazů.
 ${subtitle}

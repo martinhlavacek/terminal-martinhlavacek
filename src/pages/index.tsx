@@ -11,9 +11,8 @@ interface IndexPageProps {
 }
 
 const IndexPage: React.FC<IndexPageProps> = ({ inputRef }) => {
-  const { history } = useShell();
+  const { history, userLogin } = useShell();
   const { theme } = useTheme();
-
   const containerRef = React.useRef(null);
 
 
@@ -38,9 +37,9 @@ const IndexPage: React.FC<IndexPageProps> = ({ inputRef }) => {
         }}
       >
         <div ref={containerRef} className="overflow-y-auto h-full">
-          <History history={history} />
+          <History history={history} userLogin={userLogin} />
 
-          <Input inputRef={inputRef} containerRef={containerRef} />
+          <Input inputRef={inputRef} containerRef={containerRef} userLogin={userLogin} />
         </div>
       </div>
     </>
