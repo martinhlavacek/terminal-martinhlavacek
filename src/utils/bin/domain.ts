@@ -1,6 +1,8 @@
 import { getDomain } from '../../api';
 
-const useCommand = `Pužití: domain [arg]
+const useCommand = `Použití:
+domain [Args]
+
 Args:
   - ls:         seznam mých registrovaných domén
   - -o, --open: otevře doménu v novém okně, musíte zadat ID domény
@@ -9,7 +11,7 @@ Příklad:
   domain ls     # seznam všech mých registrovaných domén
   domain -o 1   # otevře doménu s ID 1`
 
-const openCommand = `Použití: domain o [id]
+const openCommand = `Použití: domain -o [id]
 
 id domény, kterou chcete otevřít získáte příkazem domain ls`
 
