@@ -12,6 +12,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+export const getDomains2 = async () => {
+  const { data } = await axios.get('/api/domain');
+  return data;
+};
+
 export const getVersion = async () => {
   const { data } = await axios.get('/api/version');
   return data;
@@ -66,7 +71,7 @@ export const createDomain = async (name: string, url: string) => {
 
 export const getDomain = async () => {
   const { data } = await supabase.from('domains').select('*');
-
+  getDomains2();
   return data.map((d) => {
     return {
       id: d.id,
